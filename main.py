@@ -2,13 +2,30 @@ import requests
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import json
+import os
 from fastapi import HTTPException
 from typing import Dict
 from config import FUSION_BASE_URL, FUSION_USERNAME, FUSION_PASSWORD
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import FastAPI, HTTPException, Depends
+
 
 app = FastAPI()
 
 # Oracle Config
+
+# ---------------- AUTH ----------------
+security = HTTPBasic()
+
+def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
+    if (
+        credentials.username == os.getenv("PLAN_USERNAME")
+        and credentials.password == os.getenv("PLAN_PASSWORD")
+    ):
+        return credentials.username
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+
 
 PLAN_ID = "300000326061212"
 TABLE_ID = "9002"
@@ -45,7 +62,7 @@ COLUMN_INDEX: Dict[str, int] = {
 TOTAL_COLUMNS = 14
 
 @app.post("/update-table")
-def update_table(data: UpdateRequest):
+def update_table(data: UpdateRequest, username: str = Depends(authenticate_user)):
 
     item = data.item
     org = data.organization
