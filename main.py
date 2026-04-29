@@ -19,8 +19,8 @@ security = HTTPBasic()
 
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
     if (
-        credentials.username == os.getenv("PLAN_USERNAME")
-        and credentials.password == os.getenv("PLAN_PASSWORD")
+        credentials.username == os.getenv("AGENT_USERNAME")
+        and credentials.password == os.getenv("AGENT_PASSWORD")
     ):
         return credentials.username
     raise HTTPException(status_code=401, detail="Unauthorized")
